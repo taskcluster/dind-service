@@ -16,7 +16,7 @@ RUN         DEBIAN_FRONTEND=noninteractive apt-get update -qq \
 # Anyways, the docker versions should always be locked and we should always
 # check if newer versions of the remote API exposes new ways of escalating
 # --privileged, capabilities, etc.
-ENV         DOCKER_VESION       1.4.1
+ENV         DOCKER_VERSION       1.4.1
 
 # Install docker
 RUN         echo deb https://get.docker.com/ubuntu docker main \

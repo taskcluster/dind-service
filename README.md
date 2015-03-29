@@ -18,10 +18,10 @@ docker build -t dind-service .
 mkdir -p volumes
 
 # Run dind-service
-sudo docker run
+sudo docker run \
             --privileged \
-            -v ./volumes:/var/lib/docker \
-            -p 2375 \       # Expose the proxied
+            -v `pwd`/volumes:/var/lib/docker \
+            -p 2375 \
             dind-service \
             $DOCKER_DAEMON_ARGS
 
