@@ -1,0 +1,27 @@
+{
+  "name":         "dind-service-proxy",
+  "version":      "0.1.0",
+  "private":      true,
+  "author":       "Jonas Finnemann Jensen <jopsen@gmail.com>",
+  "description":  "Proxy for only unprivileged requests to docker daemon",
+  "license":      "Apache-2.0",
+  "scripts": {
+    "start":  "node server.js",
+    "test":   "mocha --ui tdd --reporter spec test.js"
+  },
+  "repository": {
+    "type":   "git",
+    "url":    "https://github.com/jonasfj/dind-service.git"
+  },
+  "dependencies": {
+    "promise":                          "^6.1.0",
+    "debug":                            "^2.1.3",
+    "is-my-json-valid":                 "^2.10.0"
+  },
+  "devDependencies": {
+    "mocha":                            "^2.2.1"
+  },
+  "engines": {
+    "node":                             "0.10.x"
+  }
+}

@@ -1,26 +1,31 @@
-#!/bin/bash
+#!/bin/bash -ve
 
-# Ensure that all nodes in /dev/mapper correspond to mapped devices currently loaded by the device-mapper kernel driver
+# Exit on errors
+set -e;
+
+# Ensure that all nodes in /dev/mapper correspond to mapped devices currently
+# loaded by the device-mapper kernel driver
 dmsetup mknodes
 
 # First, make sure that cgroups are mounted correctly.
 CGROUP=/sys/fs/cgroup
 : {LOG:=stdio}
 
-[ -d $CGROUP ] || 
-	mkdir $CGROUP
+[ -d $CGROUP ] ||
+  mkdir $CGROUP
 
-mountpoint -q $CGROUP || 
-	mount -n -t tmpfs -o uid=0,gid=0,mode=0755 cgroup $CGROUP || {
-		echo "Could not make a tmpfs mount. Did you use --privileged?"
-		exit 1
-	}
+mountpoint -q $CGROUP ||
+  mount -n -t tmpfs -o uid=0,gid=0,mode=0755 cgroup $CGROUP || {
+    echo "Could not make a tmpfs mount. Did you use --privileged?"
+    exit 1
+  }
 
 if [ -d /sys/kernel/security ] && ! mountpoint -q /sys/kernel/security
 then
     mount -t securityfs none /sys/kernel/security || {
         echo "Could not mount /sys/kernel/security."
         echo "AppArmor detection and --privileged mode might break."
+        exit 1
     }
 fi
 
@@ -28,7 +33,7 @@ fi
 for SUBSYS in $(cut -d: -f2 /proc/1/cgroup)
 do
         [ -d $CGROUP/$SUBSYS ] || mkdir $CGROUP/$SUBSYS
-        mountpoint -q $CGROUP/$SUBSYS || 
+        mountpoint -q $CGROUP/$SUBSYS ||
                 mount -n -t cgroup -o $SUBSYS cgroup $CGROUP/$SUBSYS
 
         # The two following sections address a bug which manifests itself
@@ -60,54 +65,56 @@ done
 # Note: as I write those lines, the LXC userland tools cannot setup
 # a "sub-container" properly if the "devices" cgroup is not in its
 # own hierarchy. Let's detect this and issue a warning.
-grep -q :devices: /proc/1/cgroup ||
-	echo "WARNING: the 'devices' cgroup should be in its own hierarchy."
-grep -qw devices /proc/1/cgroup ||
-	echo "WARNING: it looks like the 'devices' cgroup is not mounted."
+grep -q :devices: /proc/1/cgroup || {
+  echo "WARNING: the 'devices' cgroup should be in its own hierarchy."
+  exit 1
+}
+grep -qw devices /proc/1/cgroup || {
+  echo "WARNING: it looks like the 'devices' cgroup is not mounted."
+  exit 1
+}
 
 # Now, close extraneous file descriptors.
 pushd /proc/self/fd >/dev/null
 for FD in *
 do
-	case "$FD" in
-	# Keep stdin/stdout/stderr
-	[012])
-		;;
-	# Nuke everything else
-	*)
-		eval exec "$FD>&-"
-		;;
-	esac
+  case "$FD" in
+  # Keep stdin/stdout/stderr
+  [012])
+    ;;
+  # Nuke everything else
+  *)
+    eval exec "$FD>&-"
+    ;;
+  esac
 done
 popd >/dev/null
-
 
 # If a pidfile is still around (for example after a container restart),
 # delete it so that docker can start.
 rm -rf /var/run/docker.pid
 
-# If we were given a PORT environment variable, start as a simple daemon;
-# otherwise, spawn a shell as well
-if [ "$PORT" ]
-then
-	exec docker -d -H 0.0.0.0:$PORT -H unix://var/run/docker.sock \
-		$DOCKER_DAEMON_ARGS
+# Start docker daemon with container arguments as docker daemon arguments
+if [ "$LOG" == "file" ]; then
+  docker -d -H unix:///var/run/docker.sock &>/var/log/docker.log &
+elif [ "$LOG" == "pipe" ]; then
+  docker -d -H unix:///var/run/docker.sock &
 else
-	if [ "$LOG" == "file" ]
-	then
-		docker -d $DOCKER_DAEMON_ARGS &>/var/log/docker.log &
-	else
-		docker -d $DOCKER_DAEMON_ARGS &
-	fi
-	(( timeout = 60 + SECONDS ))
-	until docker info >/dev/null 2>&1
-	do
-		if (( SECONDS >= timeout )); then
-			echo 'Timed out trying to connect to internal docker host.' >&2
-			break
-		fi
-		sleep 1
-	done
-	[[ $1 ]] && exec "$@"
-	exec bash --login
+  echo 'The variables $LOG most be either "file" or "pipe"';
+  exit 1;
 fi
+
+# Wait for docker socket to be ready
+(( timeout = 60 + SECONDS ))
+until docker info >/dev/null 2>&1; do
+  if (( SECONDS >= timeout )); then
+    echo 'Timed out trying to connect to internal docker host.' >&2
+    exit 1;
+    break
+  fi
+  sleep 1;
+done
+echo "docker daemon now ready for business";
+
+# Start docker daemon socket proxy
+npm start
