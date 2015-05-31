@@ -117,4 +117,4 @@ done
 echo "docker daemon now ready for business";
 
 # Start docker daemon socket proxy
-npm start
+exec npm start

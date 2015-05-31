@@ -166,7 +166,7 @@ var createDockerProxy = function(options) {
     dockerReq.on('response', function(dockerRes) {
       debug("%s: %s (%s)", clientReq.method, clientReq.url,
                            dockerRes.statusCode);
-
+      debug("headers: %j", dockerRes.headers);
       // Write the exact same header as we were given
       clientRes.writeHead(
         dockerRes.statusCode,

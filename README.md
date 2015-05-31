@@ -21,10 +21,21 @@ mkdir -p volumes
 sudo docker run \
             --privileged \
             -v `pwd`/volumes:/var/lib/docker \
-            -p 2375 \
+            -p 2375:2375 \
             dind-service \
             $DOCKER_DAEMON_ARGS
 
 # Remove volumes from host
 sudo rm -rf volumes/ && mkdir -p volumes
 ```
+
+Image Rebuilding - Security Concerns
+------------------------------------
+This is based on alpine linux, which reduces image size from 400-500MB to ~67MB,
+however, using alpine linux means that we can't lock docker version with an
+environment variable.
+
+Hence, anytime you rebuild this image, you should check that the docker version
+haven't changed, if and it has changed you should validate that the new remote
+API doesn't expose new way to elevate container permissions. In which case you
+should adopt to proxy to restrict these calls.
