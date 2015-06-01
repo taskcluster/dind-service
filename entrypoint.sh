@@ -96,9 +96,9 @@ rm -rf /var/run/docker.pid
 
 # Start docker daemon with container arguments as docker daemon arguments
 if [ "$LOG" == "file" ]; then
-  docker -d -H unix:///var/run/docker.sock &>/var/log/docker.log &
+  docker -d -H unix:///var/run/docker.sock &>/var/log/docker.log "$@" &
 elif [ "$LOG" == "pipe" ]; then
-  docker -d -H unix:///var/run/docker.sock &
+  docker -d -H unix:///var/run/docker.sock "$@" &
 else
   echo 'The variables $LOG most be either "file" or "pipe"';
   exit 1;
