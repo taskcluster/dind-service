@@ -47,3 +47,7 @@ is exposed through port `2375` all sub-containers can access this docker socket
 too. So if you run untrusted docker containers inside the `dind-service`, you
 should disable port exposure using `PORT=''`.
 
+Credits
+-------
+This project would not be possible without the orignal docker-in-docker project
+[jpetazzo/dind](https://github.com/jpetazzo/dind).
