@@ -49,5 +49,5 @@ should disable port exposure using `PORT=''`.
 
 Credits
 -------
-This project would not be possible without the orignal docker-in-docker project
+This project based on the orignal docker-in-docker project
 [jpetazzo/dind](https://github.com/jpetazzo/dind).
