@@ -12,9 +12,6 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
-    python \
-    build-essential \
-    git \
     lxc-docker-$DOCKER_VERSION \
     lxc \
     iptables
