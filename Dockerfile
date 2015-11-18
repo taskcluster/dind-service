@@ -1,9 +1,26 @@
-FROM        gliderlabs/alpine:3.2
+FROM ubuntu:14.04
 MAINTAINER  Jonas Finnemann Jensen <jopsen@gmail.com>
 
-# Install dependencies
-RUN         apk-install iptables ca-certificates lxc e2fsprogs device-mapper \
-                        docker nodejs
+ENV NODE_VERSION 0.12.4
+ENV NPM_VERSION 2.10.1
+ENV DOCKER_VERSION 1.6.1
+
+RUN apt-get install -y apt-transport-https
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9 && \
+    echo "deb https://get.docker.io/ubuntu docker main" > /etc/apt/sources.list.d/docker.list
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    curl \
+    ca-certificates \
+    python \
+    build-essential \
+    git \
+    lxc-docker-$DOCKER_VERSION \
+    lxc \
+    iptables
+
+RUN curl -SL "http://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.gz" | \
+    tar xz -C /usr/local --strip-components=1
 
 # Install the dind-service from this folder
 COPY        . /opt/dind-service
