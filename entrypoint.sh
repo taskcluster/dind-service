@@ -43,17 +43,6 @@ do
         # mounted on the exact same directories in the host, and in the
         # container.
 
-        # Named, control-less cgroups are mounted with "-o name=foo"
-        # (and appear as such under /proc/<pid>/cgroup) but are usually
-        # mounted on a directory named "foo" (without the "name=" prefix).
-        # Systemd and OpenRC (and possibly others) both create such a
-        # cgroup. To avoid the aforementioned bug, we symlink "foo" to
-        # "name=foo". This shouldn't have any adverse effect.
-        echo $SUBSYS | grep -q ^name= && {
-                NAME=$(echo $SUBSYS | sed s/^name=//)
-                ln -s $SUBSYS $CGROUP/$NAME
-        }
-
         # Likewise, on at least one system, it has been reported that
         # systemd would mount the CPU and CPU accounting controllers
         # (respectively "cpu" and "cpuacct") with "-o cpuacct,cpu"
