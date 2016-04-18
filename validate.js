@@ -45,7 +45,7 @@ var schema = {
       type:               'object',
       properties: {
         // Properties to be very careful with
-        Binds:            constant(null),   // TODO: Allow more here
+        Binds:            constant([null,[]]),   // TODO: Allow more here
         Links:            {}, // Allow links to other containers
         LxcConf:          constant([]),
         PortBindings:     constant({}),
