@@ -245,6 +245,9 @@ var createDockerProxy = function(target) {
   // Create http server
   var server = http.createServer();
 
+  // Disable timeouts for incoming connections
+  server.setTimeout(0);
+
   // Handle requests
   server.on('request', requestHandler);
 
