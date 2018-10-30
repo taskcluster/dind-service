@@ -3,20 +3,17 @@ MAINTAINER  Jonas Finnemann Jensen <jopsen@gmail.com>
 
 ENV NODE_VERSION 0.12.4
 ENV NPM_VERSION 2.10.1
-ENV DOCKER_VERSION 18.06.0~ce~3-0~ubuntu
+ENV DOCKER_VERSION 1.6.1
 
 RUN apt-get update && apt-get install -y apt-transport-https
-RUN apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
-RUN sh -c 'echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu trusty stable" \
-  > /etc/apt/sources.list.d/docker.list'
-
-#RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9 && \
-#    echo "deb https://get.docker.io/ubuntu docker main" > /etc/apt/sources.list.d/docker.list
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9 && \
+    echo "deb https://get.docker.io/ubuntu docker main" > /etc/apt/sources.list.d/docker.list
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
-    docker-ce=$DOCKER_VERSION \
+    lxc-docker-$DOCKER_VERSION \
+    lxc \
     iptables
 
 RUN curl -SL "http://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.gz" | \
